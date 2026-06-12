@@ -1,0 +1,22 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: safar-mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: safar_root
+      MYSQL_DATABASE: safar
+      MYSQL_USER: safar
+      MYSQL_PASSWORD: safar
+    volumes:
+      - safar_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-usafar", "-psafar"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  safar_mysql_data:

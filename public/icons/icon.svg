@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Safar">
+  <rect width="512" height="512" rx="96" fill="#0A3B36"/>
+  <circle cx="256" cy="256" r="120" fill="#E8A33D"/>
+  <path d="M256 136 L286 226 L376 226 L304 284 L330 374 L256 316 L182 374 L208 284 L136 226 L226 226 Z" fill="#0A3B36"/>
+</svg>

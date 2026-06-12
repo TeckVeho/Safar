@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Safar — 業務の相棒。日本のトラックドライバー向け</title>
+<meta name="description" content="トラックで日本を走る中央アジアのムスリムドライバーへ。配送荷物の豚チェック、日本のコンビニのハラル判定、現場の言葉。業務中の『困った』をSafarが解決します。" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#0C2522;--teal-950:#082420;--teal-900:#0A3B36;--teal-800:#0E4A43;--teal-700:#15564E;
+    --saffron:#E8A33D;--saffron-deep:#D4862A;--sand:#F5EFE3;--sand-2:#EFE7D6;--card:#FCF9F2;
+    --cream:#EDE6D6;--cream-dim:#C8CEBF;--sage:#5C6F66;--line:rgba(12,37,34,.12);--line-cream:rgba(237,230,214,.16);
+    --maxw:1180px;--r:18px;--ease:cubic-bezier(.22,.61,.36,1);
+    --jp:'Zen Kaku Gothic New','Noto Sans JP',sans-serif;--body:'Noto Sans JP','Noto Sans',sans-serif;
+    --lat:'Sora','Noto Sans',sans-serif;--cyr:'Noto Sans','Noto Sans JP',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--body);color:var(--ink);background:var(--sand);line-height:1.75;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  h1,h2,h3,h4{font-family:var(--jp);line-height:1.28;letter-spacing:.005em;font-weight:900}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+  .eyebrow{font-family:var(--lat);font-weight:600;font-size:.74rem;letter-spacing:.22em;text-transform:uppercase;color:var(--saffron-deep);display:inline-flex;align-items:center;gap:.6em}
+  .eyebrow.on-dark{color:var(--saffron)}
+  .eyebrow .star{width:13px;height:13px;color:var(--saffron)}
+  .lead{font-size:clamp(1.04rem,1.4vw,1.2rem);color:var(--sage);font-weight:500}
+  :focus-visible{outline:3px solid var(--saffron);outline-offset:3px;border-radius:4px}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:.55em;font-family:var(--jp);font-weight:700;font-size:.98rem;padding:.95em 1.6em;border-radius:999px;border:1.5px solid transparent;cursor:pointer;transition:transform .25s var(--ease),box-shadow .25s var(--ease),background .25s,color .25s;white-space:nowrap}
+  .btn-primary{background:var(--saffron);color:#3a2408;box-shadow:0 10px 26px -10px rgba(232,163,61,.7)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 16px 34px -12px rgba(232,163,61,.85)}
+
+  .badges{display:flex;flex-wrap:wrap;gap:14px}
+  .badge{display:inline-flex;align-items:center;gap:11px;padding:.7em 1.15em;border-radius:14px;background:#0c302b;border:1px solid var(--line-cream);color:var(--cream);transition:transform .25s var(--ease),border-color .25s}
+  .badge:hover{transform:translateY(-2px);border-color:var(--saffron)}
+  .badge svg{width:24px;height:24px;flex:none;color:var(--cream)}
+  .badge .b-sm{font-size:.66rem;color:var(--cream-dim);letter-spacing:.04em;line-height:1.1}
+  .badge .b-lg{font-family:var(--lat);font-weight:600;font-size:1.02rem;line-height:1.1}
+
+  header{position:fixed;top:0;left:0;right:0;z-index:60;transition:background .35s,box-shadow .35s,padding .35s;padding:18px 0}
+  header.scrolled{background:rgba(10,59,54,.92);backdrop-filter:blur(14px);padding:11px 0;box-shadow:0 1px 0 var(--line-cream)}
+  .nav{display:flex;align-items:center;justify-content:space-between;gap:18px}
+  .logo{display:flex;align-items:center;gap:10px;color:var(--cream);font-family:var(--lat);font-weight:700;font-size:1.35rem}
+  .logo .mark{width:30px;height:30px;color:var(--saffron)}
+  .logo small{font-family:var(--body);font-weight:500;font-size:.62rem;letter-spacing:.18em;color:var(--saffron);display:block;margin-top:-4px}
+  .nav-links{display:flex;align-items:center;gap:30px}
+  .nav-links a{color:var(--cream);font-weight:500;font-size:.92rem;opacity:.86;transition:opacity .2s,color .2s}
+  .nav-links a:hover{opacity:1;color:var(--saffron)}
+  .nav-right{display:flex;align-items:center;gap:18px}
+  .lang{display:inline-flex;background:rgba(237,230,214,.1);border:1px solid var(--line-cream);border-radius:999px;padding:3px;gap:2px}
+  .lang button{font-family:var(--lat);font-weight:600;font-size:.72rem;letter-spacing:.06em;color:var(--cream);background:transparent;border:none;cursor:pointer;padding:.4em .72em;border-radius:999px;transition:background .2s,color .2s}
+  .lang button.active{background:var(--saffron);color:#3a2408}
+  .menu-toggle{display:none;background:none;border:none;color:var(--cream);cursor:pointer;width:30px;height:30px}
+
+  .hero{position:relative;background:radial-gradient(120% 90% at 82% -5%,rgba(232,163,61,.28),transparent 55%),radial-gradient(90% 70% at 0% 100%,rgba(21,86,78,.6),transparent 60%),linear-gradient(180deg,var(--teal-900),var(--teal-950));color:var(--cream);padding:170px 0 88px;overflow:hidden}
+  .hero-star{position:absolute;color:rgba(237,230,214,.05);width:560px;height:560px;right:-150px;top:-90px;pointer-events:none}
+  .hero-grid{position:relative;display:grid;grid-template-columns:1.08fr .92fr;gap:56px;align-items:center}
+  .hero h1{font-size:clamp(2.2rem,4.4vw,3.5rem);margin:22px 0 22px;color:#fff}
+  .hero h1 .hl{color:var(--saffron)}
+  .hero .lead{color:var(--cream);opacity:.9;max-width:34em;font-size:clamp(1.02rem,1.35vw,1.18rem)}
+  .hero-cta{display:flex;flex-wrap:wrap;gap:16px;margin:34px 0 26px;align-items:center}
+  .chips{display:flex;flex-wrap:wrap;gap:10px}
+  .chip{display:inline-flex;align-items:center;gap:.5em;font-size:.82rem;font-weight:600;color:var(--cream);background:rgba(237,230,214,.08);border:1px solid var(--line-cream);border-radius:999px;padding:.5em .9em}
+  .chip .dot{width:7px;height:7px;border-radius:50%;background:var(--saffron)}
+
+  .phone-wrap{position:relative;display:flex;justify-content:center}
+  .phone{position:relative;width:300px;height:610px;border-radius:46px;background:linear-gradient(165deg,#0c302b,#06201c);padding:13px;box-shadow:0 40px 80px -28px rgba(0,0,0,.7),0 0 0 1.5px rgba(237,230,214,.08);transform:rotate(2.5deg)}
+  .phone .notch{position:absolute;top:24px;left:50%;transform:translateX(-50%);width:96px;height:24px;background:#06201c;border-radius:999px;z-index:3}
+  .screen{position:relative;width:100%;height:100%;border-radius:34px;overflow:hidden;background:linear-gradient(180deg,#10433c,#0b322c);display:flex;flex-direction:column}
+  .scr-top{padding:30px 18px 10px;display:flex;align-items:center;justify-content:space-between;font-size:.66rem;color:var(--cream);opacity:.7;font-family:var(--lat)}
+  .scr-head{padding:4px 18px 12px}
+  .scr-head .t1{font-family:var(--lat);font-weight:700;color:#fff;font-size:1.1rem;letter-spacing:.02em}
+  .scr-head .t2{font-size:.7rem;color:var(--saffron);font-weight:500;margin-top:1px}
+  .scr-map{position:relative;flex:1;margin:0 14px;border-radius:20px;overflow:hidden;background:radial-gradient(120% 100% at 30% 10%,#15564e,#0a322c);border:1px solid rgba(237,230,214,.08)}
+  .scr-map svg.route{position:absolute;inset:0;width:100%;height:100%}
+  .pin{position:absolute;transform:translate(-50%,-100%);filter:drop-shadow(0 6px 10px rgba(0,0,0,.4))}
+  .pin .pin-ic{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#3a2408}
+  .pin.pray .pin-ic{background:var(--saffron)}
+  .pin.food .pin-ic{background:#7fce9a;color:#0a3b36}
+  .pin .pin-ic svg{width:18px;height:18px}
+  .scr-card{position:absolute;left:12px;right:12px;bottom:12px;background:rgba(6,32,28,.86);backdrop-filter:blur(6px);border:1px solid rgba(237,230,214,.12);border-radius:16px;padding:12px 14px;display:flex;align-items:center;gap:12px}
+  .scr-card .qibla{width:42px;height:42px;border-radius:50%;border:1.5px solid var(--saffron);display:flex;align-items:center;justify-content:center;flex:none}
+  .scr-card .qibla svg{width:20px;height:20px;color:var(--saffron)}
+  .scr-card .c-l1{font-size:.62rem;color:var(--cream-dim);letter-spacing:.03em}
+  .scr-card .c-l2{font-family:var(--jp);font-weight:700;color:#fff;font-size:.95rem}
+  .scr-card .c-time{margin-left:auto;font-family:var(--lat);font-weight:700;color:var(--saffron);font-size:1.05rem}
+  .float-card{position:absolute;background:var(--card);border-radius:16px;padding:13px 16px;box-shadow:0 22px 44px -16px rgba(0,0,0,.5);display:flex;align-items:center;gap:11px;z-index:4}
+  .float-halal{left:-34px;bottom:122px}
+  .fc-check{width:34px;height:34px;border-radius:50%;background:#e6f4ea;color:#1c8a4b;display:flex;align-items:center;justify-content:center;flex:none}
+  .fc-check svg{width:18px;height:18px}
+  .float-card .fc-l1{font-size:.62rem;color:var(--sage);letter-spacing:.03em}
+  .float-card .fc-l2{font-family:var(--jp);font-weight:700;color:var(--ink);font-size:.9rem}
+
+  section{padding:96px 0}
+  .sec-head{max-width:42rem;margin-bottom:54px}
+  .sec-head.center{margin-left:auto;margin-right:auto;text-align:center}
+  .sec-head h2{font-size:clamp(1.7rem,3vw,2.5rem);margin:18px 0 16px}
+  .on-sand h2{color:var(--ink)}
+  .on-dark h2{color:#fff}
+  .on-dark .lead{color:var(--cream);opacity:.82}
+
+  .pain{background:var(--sand)}
+  .pain-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+  .pain-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:26px 24px;transition:transform .3s var(--ease),box-shadow .3s}
+  .pain-card:hover{transform:translateY(-4px);box-shadow:0 18px 36px -20px rgba(12,37,34,.28)}
+  .pain-card .pc-ic{width:46px;height:46px;border-radius:13px;background:var(--sand-2);color:var(--teal-800);display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+  .pain-card .pc-ic svg{width:24px;height:24px}
+  .pain-card p{font-size:.96rem;color:var(--ink);font-weight:500}
+
+  .features{background:linear-gradient(180deg,var(--sand),var(--sand-2))}
+  .frow{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;margin-top:70px}
+  .frow:first-of-type{margin-top:0}
+  .frow.rev .fr-media{order:-1}
+  .fr-tag{font-family:var(--lat);font-weight:700;font-size:.8rem;color:var(--saffron-deep);letter-spacing:.08em}
+  .fr-text h3{font-size:clamp(1.4rem,2.3vw,1.9rem);margin:10px 0 14px;color:var(--ink)}
+  .fr-text p{color:var(--sage);font-weight:500;font-size:1.02rem;max-width:30em}
+  .fr-list{list-style:none;margin-top:20px;display:flex;flex-direction:column;gap:11px}
+  .fr-list li{display:flex;gap:11px;align-items:flex-start;font-size:.96rem;font-weight:500}
+  .fr-list .star{width:15px;height:15px;color:var(--saffron-deep);margin-top:5px;flex:none}
+  .fr-media{position:relative}
+  .media-card{position:relative;border-radius:24px;overflow:hidden;padding:30px;min-height:330px;display:flex;flex-direction:column;justify-content:flex-end;background:radial-gradient(120% 100% at 20% 0%,var(--teal-700),var(--teal-900));box-shadow:0 30px 60px -28px rgba(10,59,54,.6)}
+  .media-card .mc-star{position:absolute;right:-40px;top:-40px;width:220px;height:220px;color:rgba(237,230,214,.06)}
+  .mini-chip{display:inline-flex;align-items:center;gap:9px;background:rgba(6,32,28,.78);border:1px solid rgba(237,230,214,.14);border-radius:14px;padding:11px 15px;color:var(--cream);font-size:.86rem;font-weight:600;backdrop-filter:blur(5px);align-self:flex-start}
+  .mini-chip .dot-g{width:9px;height:9px;border-radius:50%;background:#7fce9a}
+  .mini-chip .dot-s{width:9px;height:9px;border-radius:50%;background:var(--saffron)}
+
+  .halal{background:linear-gradient(180deg,var(--teal-900),var(--teal-950));color:var(--cream);overflow:hidden;position:relative}
+  .halal .halal-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;position:relative}
+  .scan-demo{position:relative;background:rgba(6,32,28,.5);border:1px solid var(--line-cream);border-radius:24px;padding:26px}
+  .scan-item{display:flex;align-items:center;gap:16px;padding:16px;border-radius:16px;background:rgba(237,230,214,.05);margin-bottom:14px;border:1px solid transparent}
+  .scan-item:last-child{margin-bottom:0}
+  .scan-item.ok{border-color:rgba(127,206,154,.4)}
+  .scan-item.no{border-color:rgba(232,120,90,.4)}
+  .scan-thumb{width:50px;height:50px;border-radius:12px;background:rgba(237,230,214,.1);display:flex;align-items:center;justify-content:center;flex:none;color:var(--cream)}
+  .scan-thumb svg{width:26px;height:26px}
+  .scan-item .si-name{font-weight:700;font-family:var(--jp);color:#fff;font-size:.98rem}
+  .scan-item .si-sub{font-size:.78rem;color:var(--cream-dim)}
+  .verdict{margin-left:auto;font-family:var(--jp);font-weight:700;font-size:.86rem;padding:.4em .9em;border-radius:999px;white-space:nowrap}
+  .verdict.ok{background:rgba(127,206,154,.18);color:#9fe0b4}
+  .verdict.no{background:rgba(232,120,90,.18);color:#f0a892}
+  .verdict.maybe{background:rgba(232,163,61,.18);color:var(--saffron)}
+
+  .basics{background:var(--sand-2)}
+  .basics-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+  .bcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:32px 30px;display:flex;gap:22px;align-items:flex-start;transition:transform .3s var(--ease),box-shadow .3s}
+  .bcard:hover{transform:translateY(-4px);box-shadow:0 22px 44px -24px rgba(12,37,34,.28)}
+  .bcard .bc-ic{width:54px;height:54px;border-radius:15px;background:var(--teal-900);color:var(--saffron);display:flex;align-items:center;justify-content:center;flex:none}
+  .bcard .bc-ic svg{width:28px;height:28px}
+  .bcard h3{font-size:1.18rem;margin-bottom:8px;color:var(--ink)}
+  .bcard p{color:var(--sage);font-weight:500;font-size:.94rem}
+
+  .voices{background:var(--sand)}
+  .v-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .vcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:30px 28px;display:flex;flex-direction:column;gap:18px}
+  .vcard .quote{font-family:var(--jp);font-weight:700;font-size:1.1rem;color:var(--ink);line-height:1.6}
+  .vcard .who{display:flex;align-items:center;gap:13px;margin-top:auto}
+  .vcard .av{width:46px;height:46px;border-radius:50%;background:linear-gradient(150deg,var(--teal-700),var(--teal-900));color:var(--saffron);display:flex;align-items:center;justify-content:center;font-family:var(--lat);font-weight:700;font-size:1.05rem;flex:none}
+  .vcard .who .n{font-weight:700;font-size:.95rem}
+  .vcard .who .r{font-size:.8rem;color:var(--sage)}
+
+  .how{background:linear-gradient(180deg,var(--teal-900),var(--teal-950));color:var(--cream)}
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+  .step{position:relative;padding-top:18px}
+  .step .num{font-family:var(--lat);font-weight:700;font-size:2.6rem;color:var(--saffron);opacity:.85;line-height:1}
+  .step h3{color:#fff;font-size:1.2rem;margin:14px 0 10px}
+  .step p{color:var(--cream);opacity:.78;font-weight:500;font-size:.95rem}
+  .step .bar{position:absolute;top:30px;left:64px;right:-14px;height:1.5px;background:linear-gradient(90deg,var(--saffron),transparent)}
+  .step:last-child .bar{display:none}
+
+  .biz{background:var(--teal-800);color:var(--cream);position:relative;overflow:hidden}
+  .biz-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:54px;align-items:center}
+  .biz h2{color:#fff;font-size:clamp(1.6rem,2.8vw,2.2rem);margin:16px 0 16px}
+  .biz p{color:var(--cream);opacity:.85;font-weight:500;margin-bottom:26px}
+  .biz-pts{list-style:none;display:flex;flex-direction:column;gap:16px}
+  .biz-pts li{display:flex;gap:14px;align-items:flex-start}
+  .biz-pts .pic{width:42px;height:42px;border-radius:12px;background:rgba(232,163,61,.16);color:var(--saffron);display:flex;align-items:center;justify-content:center;flex:none}
+  .biz-pts .pic svg{width:22px;height:22px}
+  .biz-pts .pt{font-weight:700;color:#fff;font-size:1rem;font-family:var(--jp)}
+  .biz-pts .pd{font-size:.88rem;color:var(--cream);opacity:.78}
+
+  .faq{background:var(--sand)}
+  .faq-list{max-width:46rem;margin:0 auto}
+  .qa{border-bottom:1px solid var(--line)}
+  .qa button{width:100%;display:flex;align-items:center;justify-content:space-between;gap:20px;background:none;border:none;cursor:pointer;text-align:left;padding:26px 4px;font-family:var(--jp);font-weight:700;font-size:1.06rem;color:var(--ink)}
+  .qa .ic{width:26px;height:26px;flex:none;color:var(--saffron-deep);transition:transform .3s var(--ease)}
+  .qa[aria-expanded="true"] .ic{transform:rotate(45deg)}
+  .qa-body{max-height:0;overflow:hidden;transition:max-height .4s var(--ease)}
+  .qa-body p{padding:0 4px 26px;color:var(--sage);font-weight:500;font-size:.98rem;max-width:54em}
+
+  .final{position:relative;background:radial-gradient(90% 120% at 50% 0%,rgba(232,163,61,.22),transparent 55%),linear-gradient(180deg,var(--teal-900),var(--teal-950));color:var(--cream);text-align:center;overflow:hidden}
+  .final .f-star{position:absolute;left:50%;top:30px;transform:translateX(-50%);width:300px;height:300px;color:rgba(237,230,214,.05)}
+  .final h2{font-size:clamp(2rem,4vw,3.2rem);color:#fff;margin-bottom:20px;position:relative}
+  .final .lead{margin:0 auto 36px;max-width:34em}
+  .final .badges{justify-content:center}
+
+  footer{background:var(--ink);color:var(--cream);padding:64px 0 34px}
+  .foot-top{display:flex;justify-content:space-between;gap:40px;flex-wrap:wrap;padding-bottom:34px;border-bottom:1px solid var(--line-cream)}
+  .foot-brand{max-width:22rem}
+  .foot-brand .logo{margin-bottom:14px}
+  .foot-brand p{color:var(--cream);opacity:.6;font-size:.9rem}
+  .foot-cols{display:flex;gap:64px;flex-wrap:wrap}
+  .foot-col h4{font-family:var(--lat);font-weight:600;font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;color:var(--saffron);margin-bottom:16px}
+  .foot-col a{display:block;color:var(--cream);opacity:.7;font-size:.92rem;margin-bottom:11px;transition:opacity .2s}
+  .foot-col a:hover{opacity:1}
+  .foot-bottom{padding-top:26px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;color:var(--cream);opacity:.5;font-size:.82rem}
+
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+  .reveal.in{opacity:1;transform:none}
+  [lang-cyr]{font-family:var(--cyr)}
+
+  @media(max-width:960px){
+    .hero-grid,.halal .halal-grid,.biz-grid{grid-template-columns:1fr;gap:48px}
+    .phone-wrap{order:-1}
+    .frow,.frow.rev{grid-template-columns:1fr;gap:34px}
+    .frow.rev .fr-media{order:0}
+    .pain-grid{grid-template-columns:repeat(2,1fr)}
+    .basics-grid,.v-grid,.steps{grid-template-columns:1fr}
+    .step .bar{display:none}
+    .nav-links{display:none}
+    .menu-toggle{display:flex;align-items:center;justify-content:center}
+    .nav-links.open{display:flex;position:absolute;top:100%;left:0;right:0;flex-direction:column;background:var(--teal-900);padding:20px 24px;gap:18px;border-top:1px solid var(--line-cream)}
+  }
+  @media(max-width:560px){
+    .pain-grid{grid-template-columns:1fr}
+    .hero{padding:140px 0 70px}
+    .float-halal{left:0;bottom:-18px}
+    section{padding:74px 0}
+    .lang button{padding:.35em .55em}
+  }
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}.reveal{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<header id="header">
+  <div class="wrap nav">
+    <a href="#top" class="logo" aria-label="Safar ホーム">
+      <svg class="mark" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="6" aria-hidden="true"><rect x="22" y="22" width="56" height="56" rx="3"/><rect x="22" y="22" width="56" height="56" rx="3" transform="rotate(45 50 50)"/></svg>
+      <span>Safar<small>サファル</small></span>
+    </a>
+    <nav class="nav-links" id="navLinks">
+      <a href="#features" data-ja="機能" data-ru="Функции" data-en="Features">機能</a>
+      <a href="#halal" data-ja="ハラル" data-ru="Халяль" data-en="Halal">ハラル</a>
+      <a href="#how" data-ja="使い方" data-ru="Как это работает" data-en="How it works">使い方</a>
+      <a href="#faq" data-ja="よくある質問" data-ru="Вопросы" data-en="FAQ">よくある質問</a>
+    </nav>
+    <div class="nav-right">
+      <div class="lang" role="group" aria-label="言語切り替え">
+        <button data-lang="ja" class="active">JA</button><button data-lang="ru">RU</button><button data-lang="en">EN</button>
+      </div>
+      <a href="#final" class="btn btn-primary" data-ja="無料で始める" data-ru="Скачать" data-en="Get the app">無料で始める</a>
+      <button class="menu-toggle" id="menuToggle" aria-label="メニュー" aria-expanded="false"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <svg class="hero-star" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="18" y="18" width="64" height="64"/><rect x="18" y="18" width="64" height="64" transform="rotate(45 50 50)"/><rect x="32" y="32" width="36" height="36"/><rect x="32" y="32" width="36" height="36" transform="rotate(45 50 50)"/></svg>
+  <div class="wrap hero-grid">
+    <div class="hero-text">
+      <span class="eyebrow on-dark">
+        <svg class="star" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true"><path d="M50 4 58 30 84 22 70 46 96 50 70 54 84 78 58 70 50 96 42 70 16 78 30 54 4 50 30 46 16 22 42 30Z"/></svg>
+        <span data-ja="トラックで日本を走る、中央アジアのムスリムドライバーへ" data-ru="Для водителей грузовиков из Центральной Азии в Японии" data-en="For Central Asian Muslim truck drivers in Japan">トラックで日本を走る、中央アジアのムスリムドライバーへ</span>
+      </span>
+      <h1 data-ja='荷物の豚チェックも、<span class="hl">ハラルの食事</span>も、現場の言葉も。' data-ru='Проверка свинины в грузе, <span class="hl">что поесть</span> и как понять — всё сразу.' data-en='Pork check for cargo, <span class="hl">what to eat</span>, and the words you need.'>荷物の豚チェックも、<span class="hl">ハラルの食事</span>も、現場の言葉も。</h1>
+      <p class="lead" data-ja="業務中の「困った」を、Safarが解決します。配送荷物の豚チェック、日本のコンビニのハラル判定、伝票や点呼の言葉まで——走る一日に、ぴったり寄り添う相棒です。" data-ru="Safar решает рабочие «затруднения». Проверка свинины в грузе, проверка халяль в японских комбини, слова для накладных и переклички — спутник на каждый рабочий день." data-en="Safar solves your work problems. Pork check for cargo, halal checks for Japanese convenience stores, and the words for slips and roll calls — your companion for every working day.">業務中の「困った」を、Safarが解決します。配送荷物の豚チェック、日本のコンビニのハラル判定、伝票や点呼の言葉まで——走る一日に、ぴったり寄り添う相棒です。</p>
+      <div class="hero-cta">
+        <div class="badges">
+          <a href="#final" class="badge" aria-label="App Store でダウンロード">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.9c0-2 1.6-3 1.7-3-1-1.3-2.4-1.5-2.9-1.6-1.2-.1-2.4.7-3 .7s-1.6-.7-2.6-.7c-1.3 0-2.6.8-3.2 2-1.4 2.4-.4 6 1 8 .7 1 1.4 2 2.4 2s1.3-.6 2.5-.6 1.5.6 2.6.6 1.7-1 2.3-2c.7-1.1 1-2.1 1-2.2-.1 0-2.1-.8-2.3-3.4ZM14.5 6.5c.5-.7.9-1.6.8-2.5-.8 0-1.7.5-2.3 1.2-.5.6-.9 1.5-.8 2.4.9 0 1.7-.4 2.3-1.1Z"/></svg>
+            <span><span class="b-sm" data-ja="で入手" data-ru="Загрузить в" data-en="Download on">で入手</span><span class="b-lg">App Store</span></span>
+          </a>
+          <a href="#final" class="badge" aria-label="Google Play でダウンロード">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.6 2.3c-.3.3-.5.7-.5 1.3v16.8c0 .6.2 1 .5 1.3l.1.1 9.4-9.4v-.2L3.7 2.2l-.1.1Zm12.6 6.3-2.6-2.6 2.6 2.6Zm-9.3-5L15 8.9l2.1-2.1L7.3 1.2c-.4-.2-.8-.2-1.1 0Zm0 18.8c.3.2.7.2 1.1 0l9.8-5.6L15 14.5l-8.1 7.9Zm13.3-8.2 2.3-1.3c.7-.4.7-1.1 0-1.5l-2.3-1.3-2.3 2.1 2.3 2Z"/></svg>
+            <span><span class="b-sm" data-ja="で入手" data-ru="Доступно в" data-en="Get it on">で入手</span><span class="b-lg">Google Play</span></span>
+          </a>
+        </div>
+      </div>
+      <div class="chips">
+        <span class="chip"><span class="dot"></span><span data-ja="荷物の豚チェック" data-ru="Проверка свинины в грузе" data-en="Cargo pork check">荷物の豚チェック</span></span>
+        <span class="chip"><span class="dot"></span><span data-ja="日本のコンビニ対応" data-ru="Японские комбини" data-en="Japan konbini">日本のコンビニ対応</span></span>
+        <span class="chip"><span class="dot"></span><span data-ja="ロシア語・ウズベク語" data-ru="Русский и узбекский" data-en="Russian & Uzbek">ロシア語・ウズベク語</span></span>
+      </div>
+    </div>
+
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="scr-top"><span>5:12</span><span>＊ ◗ 86%</span></div>
+          <div class="scr-head"><div class="t1">Safar</div><div class="t2">荷物チェック</div></div>
+          <div class="scr-map" style="display:flex;flex-direction:column;gap:10px;padding:14px;justify-content:center">
+            <div style="display:flex;align-items:center;gap:10px;background:rgba(237,230,214,.08);border-radius:12px;padding:10px 12px;border:1px solid rgba(127,206,154,.4)">
+              <div style="width:32px;height:32px;border-radius:8px;background:rgba(127,206,154,.2);display:flex;align-items:center;justify-content:center">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#9fe0b4" stroke-width="2"><path d="m5 13 4 4L19 7"/></svg>
+              </div>
+              <div>
+                <div style="font-size:.72rem;font-weight:700;color:#fff">米・野菜セット</div>
+                <div style="font-size:.58rem;color:var(--cream-dim)">豚由来成分なし</div>
+              </div>
+              <span style="margin-left:auto;font-size:.62rem;font-weight:700;padding:.3em .7em;border-radius:999px;background:rgba(127,206,154,.18);color:#9fe0b4">OK</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;background:rgba(237,230,214,.08);border-radius:12px;padding:10px 12px;border:1px solid rgba(232,120,90,.4)">
+              <div style="width:32px;height:32px;border-radius:8px;background:rgba(232,120,90,.2);display:flex;align-items:center;justify-content:center">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#f0a892" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+              </div>
+              <div>
+                <div style="font-size:.72rem;font-weight:700;color:#fff">冷凍豚ロース</div>
+                <div style="font-size:.58rem;color:var(--cream-dim)">豚肉を含みます</div>
+              </div>
+              <span style="margin-left:auto;font-size:.62rem;font-weight:700;padding:.3em .7em;border-radius:999px;background:rgba(232,120,90,.18);color:#f0a892">注意</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;background:rgba(237,230,214,.08);border-radius:12px;padding:10px 12px;border:1px solid rgba(127,206,154,.4)">
+              <div style="width:32px;height:32px;border-radius:8px;background:rgba(127,206,154,.2);display:flex;align-items:center;justify-content:center">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#9fe0b4" stroke-width="2"><path d="m5 13 4 4L19 7"/></svg>
+              </div>
+              <div>
+                <div style="font-size:.72rem;font-weight:700;color:#fff">飲料ケース</div>
+                <div style="font-size:.58rem;color:var(--cream-dim)">豚由来成分なし</div>
+              </div>
+              <span style="margin-left:auto;font-size:.62rem;font-weight:700;padding:.3em .7em;border-radius:999px;background:rgba(127,206,154,.18);color:#9fe0b4">OK</span>
+            </div>
+          </div>
+          <div style="height:14px"></div>
+        </div>
+      </div>
+      <div class="float-card float-halal">
+        <span class="fc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m5 13 4 4L19 7"/></svg></span>
+        <div><div class="fc-l1" data-ja="ハラル判定" data-ru="Проверка халяль" data-en="Halal check">ハラル判定</div><div class="fc-l2" data-ja="食べてOK" data-ru="Можно есть" data-en="Safe to eat">食べてOK</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PAIN -->
+<section class="pain on-sand" id="why">
+  <div class="wrap">
+    <div class="sec-head center reveal">
+      <span class="eyebrow"><svg class="star" viewBox="0 0 100 100" fill="currentColor"><path d="M50 4 58 30 84 22 70 46 96 50 70 54 84 78 58 70 50 96 42 70 16 78 30 54 4 50 30 46 16 22 42 30Z"/></svg>業務中の、困りごと</span>
+      <h2>業務中の、こんな「困った」。</h2>
+      <p class="lead">日本で走る毎日。でも、ムスリムドライバーのための情報とサポートは、まだ足りません。</p>
+    </div>
+    <div class="pain-grid">
+      <div class="pain-card reveal">
+        <div class="pc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2Z"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div>
+        <p>配送する荷物に、豚肉や豚由来の製品が入っているかもしれない。事前に分からない。</p>
+      </div>
+      <div class="pain-card reveal">
+        <div class="pc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/></svg></div>
+        <p>コンビニの棚の前で、どれに豚やお酒が入っているのか分からない。</p>
+      </div>
+      <div class="pain-card reveal">
+        <div class="pc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 4h14v16l-7-3-7 3V4Z"/><path d="M9 9h6M9 13h4"/></svg></div>
+        <p>渡された伝票や、倉庫での指示の日本語が読めない。聞ける相手もいない。</p>
+      </div>
+      <div class="pain-card reveal">
+        <div class="pc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 4v5c0 5-3.5 8-8 10-4.5-2-8-5-8-10V7l8-4Z"/><path d="m9.5 12 1.8 1.8 3.2-3.4"/></svg></div>
+        <p>点呼や事故対応など、いざという時の日本語に、不安がある。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features on-sand" id="features">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><svg class="star" viewBox="0 0 100 100" fill="currentColor"><path d="M50 4 58 30 84 22 70 46 96 50 70 54 84 78 58 70 50 96 42 70 16 78 30 54 4 50 30 46 16 22 42 30Z"/></svg>業務中に必要な、3つの軸</span>
+      <h2>食・荷物・言葉。それだけに、集中する。</h2>
+    </div>
+
+    <!-- 荷物 -->
+    <div class="frow reveal">
+      <div class="fr-text">
+        <span class="fr-tag">荷物 — CARGO CHECK</span>
+        <h3>荷物の豚チェック</h3>
+        <p>配送する荷物に、豚由来の製品が含まれていないか。伝票をスキャンするだけで、積込前に確認できます。</p>
+        <ul class="fr-list">
+          <li><svg class="star" viewBox="0 0 100 100" fill="currentColor"><path d="M50 4 58 30 84 22 70 46 96 50 70 54 84 78 58 70 50 96 42 70 16 78 30 54 4 50 30 46 16 22 42 30Z"/></svg><span>伝票・送り状をカメラで撮るだけ。品目から豚含有品を一括検出</span></li>
+          <li><svg class="star" viewBox="0 0 100 100" fill="currentColor"><path d="M50 4 58 30 84 22 70 46 96 50 70 54 84 78 58 70 50 96 42 70 16 78 30 54 4 50 30 46 16 22 42 30Z"/></svg><span>個別の荷物もバーコードでチェック可能</span></li>
+          <li><svg class="star" viewBox="0 0 100 100" fill="currentColor"><path d="M50 4 58 30 84 22 70 46 96 50 70 54 84 78 58 70 50 96 42 70 16 78 30 54 4 50 30 46 16 22 42 30Z"/></svg><span>豚が見つかったら積込前にアラート。対応を相談できる</span></li>
+        </ul>
+      </div>
+      <div class="fr-media">
+        <div class="media-card">
+          <svg class="mc-star" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2"><rect x="20" y="20" width="60" height="60"/><rect x="20" y="20" width="60" height="60" transform="rotate(45 50 50)"/></svg>
+          <div class="mini-chip"><span class="dot-s"></span>伝票スキャン完了　豚含有品 1件検出</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 言葉 -->
+    <div class="frow rev reveal">
+      <div class="fr-text">
+        <span class="fr-tag">言葉 — ON-SITE WORDS</span>
+        <h3>現場の言語サポート</h3>
+        <p>翻訳アプリでは出てこない、トラックの現場で本当に使う日本語を、あなたの言葉で。</p>
+        <ul class="fr-list">
+          <li><svg class="star" viewBox="0 0 100 100" fill="currentColor"><path d="M50 4 58 30 84 22 70 46 96 50 70 54 84 78 58 70 50 96 42 70 16 78 30 54 4 50 30 46 16 22 42 30Z"/></svg><span>伝票・倉庫の指示・荷主対応・点呼を、ロシア語／ウズベク語で</span></li>
+          <li><svg class="star" viewBox="0 0 100 100" fill="currentColor"><path d="M50 4 58 30 84 22 70 46 96 50 70 54 84 78 58 70 50 96 42 70 16 78 30 54 4 50 30 46 16 22 42 30Z"/></svg><span>伝票はカメラで撮るだけ。文字を読み取って翻訳</span></li>
+          <li><svg class="star" viewBox="0 0 100 100" fill="currentColor"><path d="M50 4 58 30 84 22 70 46 96 50 70 54 84 78 58 70 50 96 42 70 16 78 30 54 4 50 30 46 16 22 42 30Z"/></svg><span>事故・トラブル時の定型フレーズ。運転中も音声で</span></li>
+        </ul>
+      </div>
+      <div class="fr-media">
+        <div class="media-card" style="background:radial-gradient(120% 100% at 80% 0%,var(--teal-700),var(--teal-900))">
+          <svg class="mc-star" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2"><rect x="20" y="20" width="60" height="60"/><rect x="20" y="20" width="60" height="60" transform="rotate(45 50 50)"/></svg>
+          <div style="display:flex;flex-direction:column;gap:12px;align-self:stretch">
+            <div class="mini-chip" style="align-self:flex-end;background:rgba(232,163,61,.18)">「この荷物はどこに置きますか？」</div>
+            <div class="mini-chip" lang-cyr><span class="dot-g"></span>«Куда поставить этот груз?»</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 食 HALAL band -->
+<section class="halal" id="halal">
+  <div class="wrap halal-grid">
+    <div class="reveal">
+      <span class="eyebrow on-dark"><svg class="star" viewBox="0 0 100 100" fill="currentColor"><path d="M50 4 58 30 84 22 70 46 96 50 70 54 84 78 58 70 50 96 42 70 16 78 30 54 4 50 30 46 16 22 42 30Z"/></svg>食 — Halal Scanner</span>
+      <h2 style="color:#fff;font-size:clamp(1.7rem,3vw,2.5rem);margin:18px 0 16px">日本のコンビニに、<br>特化したハラル判定。</h2>
+      <p class="lead" style="color:var(--cream);opacity:.85">商品をカメラでかざすだけ。日本語の原材料表示から、豚由来・アルコール（みりん・料理酒）・動物性ゼラチンを見つけて、「食べてOK」か「避けて」かをその場で判定します。確信が持てないときは、正直に「疑わしい」と伝えます。</p>
+      <div style="margin-top:26px"><a href="#final" class="btn btn-primary" data-ja="無料で試す" data-ru="Попробовать" data-en="Try it free">無料で試す</a></div>
+    </div>
+    <div class="scan-demo reveal">
+      <div class="scan-item ok">
+        <div class="scan-thumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></div>
+        <div><div class="si-name">焼きおにぎり（昆布）</div><div class="si-sub">豚・アルコール不使用</div></div>
+        <span class="verdict ok" data-ja="食べてOK" data-ru="Можно" data-en="OK">食べてOK</span>
+      </div>
+      <div class="scan-item no">
+        <div class="scan-thumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="7" width="14" height="11" rx="2"/><path d="M9 7V5h6v2"/></svg></div>
+        <div><div class="si-name">ポークカレーまん</div><div class="si-sub">豚肉を含みます</div></div>
+        <span class="verdict no" data-ja="避けて" data-ru="Нельзя" data-en="Avoid">避けて</span>
+      </div>
+      <div class="scan-item">
+        <div class="scan-thumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="8"/><path d="M12 8v4M12 16h.01"/></svg></div>
+        <div><div class="si-name">グミ（果汁）</div><div class="si-sub">ゼラチンの由来が不明</div></div>
+        <span class="verdict maybe" data-ja="疑わしい" data-ru="Сомнительно" data-en="Doubtful">疑わしい</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BASICS (礼拝・基盤) -->
+<section class="basics on-sand">
+  <div class="wrap">
+    <div class="sec-head center reveal"><h2>業務に、自然に溶け込む。</h2></div>
+    <div class="basics-grid">
+      <div class="bcard reveal">
+        <div class="bc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3h18v18H3z"/><path d="M12 8v4M9 17h6"/><circle cx="12" cy="14" r="1"/></svg></div>
+        <div><h3>近くのハラル店</h3><p>現在地の周辺にあるハラル・ムスリムフレンドリーの店やコンビニ食を表示。食べられる場所が、すぐに見つかります。</p></div>
+      </div>
+      <div class="bcard reveal">
+        <div class="bc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12a7 7 0 0 1 14 0"/><path d="M2 9a11 11 0 0 1 20 0"/><circle cx="12" cy="16" r="2.4"/></svg></div>
+        <div><h3>圏外でも、ハンズフリーでも</h3><p>現場フレーズ・商品データ・ハラル店リストは、電波がなくても表示。運転中は音声で操作でき、ハンドルから手を離しません。位置情報は、最小限しか集めません。</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VOICES -->
+<section class="voices on-sand" id="voices">
+  <div class="wrap">
+    <div class="sec-head center reveal">
+      <span class="eyebrow"><svg class="star" viewBox="0 0 100 100" fill="currentColor"><path d="M50 4 58 30 84 22 70 46 96 50 70 54 84 78 58 70 50 96 42 70 16 78 30 54 4 50 30 46 16 22 42 30Z"/></svg>利用者の声</span>
+      <h2>走る人たちの、本音。</h2>
+    </div>
+    <div class="v-grid">
+      <div class="vcard reveal"><p class="quote">「コンビニで何を食べていいか、もう迷わない。これだけで毎日が楽になった。」</p><div class="who"><span class="av">A</span><div><div class="n">アリシェルさん</div><div class="r">大型トラック ・ 愛知県</div></div></div></div>
+      <div class="vcard reveal"><p class="quote">「荷物に豚が入ってないか、伝票を撮るだけで分かる。もう心配しなくていい。」</p><div class="who"><span class="av">N</span><div><div class="n">ヌルベクさん</div><div class="r">中距離配送 ・ 埼玉県</div></div></div></div>
+      <div class="vcard reveal"><p class="quote">「伝票で困ったとき、カメラで撮ればロシア語で意味が出る。本当に助かる。」</p><div class="who"><span class="av">J</span><div><div class="n">ジャスルさん</div><div class="r">長距離ドライバー ・ 福岡県</div></div></div></div>
+    </div>
+    <p style="text-align:center;margin-top:24px;font-size:.8rem;color:var(--sage)">※掲載内容は利用イメージです。</p>
+  </div>
+</section>
+
+<!-- HOW -->
+<section class="how" id="how">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow on-dark"><svg class="star" viewBox="0 0 100 100" fill="currentColor"><path d="M50 4 58 30 84 22 70 46 96 50 70 54 84 78 58 70 50 96 42 70 16 78 30 54 4 50 30 46 16 22 42 30Z"/></svg>はじめかた</span>
+      <h2 style="color:#fff">3ステップで、今日から。</h2>
+    </div>
+    <div class="steps">
+      <div class="step reveal"><div class="bar"></div><div class="num">01</div><h3>アプリを入手</h3><p>App Store または Google Play から、無料でダウンロード。</p></div>
+      <div class="step reveal"><div class="bar"></div><div class="num">02</div><h3>言語を設定</h3><p>ロシア語などを選ぶだけ。すぐに使えます。</p></div>
+      <div class="step reveal"><div class="num">03</div><h3>あとは走るだけ</h3><p>荷物のチェックも、食べられるものも、Safarがサポートします。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- B2B -->
+<section class="biz" id="biz">
+  <div class="wrap biz-grid">
+    <div class="reveal">
+      <span class="eyebrow on-dark"><svg class="star" viewBox="0 0 100 100" fill="currentColor"><path d="M50 4 58 30 84 22 70 46 96 50 70 54 84 78 58 70 50 96 42 70 16 78 30 54 4 50 30 46 16 22 42 30Z"/></svg>運送会社の方へ</span>
+      <h2>ドライバーの定着を、<br>走る現場から支える。</h2>
+      <p>採用は入口にすぎません。走行中の摩擦を減らすことが、長く走り続けてもらう一番の近道です。Safarは日々の困りごとを減らし、稼働と定着を可視化します。</p>
+      <a href="#" class="btn btn-primary" data-ja="導入を相談する" data-ru="Связаться с нами" data-en="Talk to us">導入を相談する</a>
+    </div>
+    <ul class="biz-pts reveal">
+      <li><span class="pic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg></span><div><div class="pt">稼働・定着の可視化</div><div class="pd">走行中の摩擦やトラブルの予兆を捉え、離職を早期に把握。</div></div></li>
+      <li><span class="pic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 9h18M8 14h4"/></svg></span><div><div class="pt">配車・点呼との連携</div><div class="pd">礼拝・休憩を織り込んだ運用を、既存の業務システムと連携。</div></div></li>
+      <li><span class="pic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2 4 6v6c0 5 3.5 8 8 10 4.5-2 8-5 8-10V6l-8-4Z"/></svg></span><div><div class="pt">採用力にする</div><div class="pd">「ムスリム対応の職場」であることを、採用現場で示せる。</div></div></li>
+    </ul>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq on-sand" id="faq">
+  <div class="wrap">
+    <div class="sec-head center reveal">
+      <span class="eyebrow"><svg class="star" viewBox="0 0 100 100" fill="currentColor"><path d="M50 4 58 30 84 22 70 46 96 50 70 54 84 78 58 70 50 96 42 70 16 78 30 54 4 50 30 46 16 22 42 30Z"/></svg>よくある質問</span>
+      <h2>気になること、お答えします。</h2>
+    </div>
+    <div class="faq-list reveal">
+      <div class="qa-item"><button class="qa" aria-expanded="false"><span>ハラル判定は、日本のコンビニ商品に対応していますか？</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button><div class="qa-body"><p>はい。Safarは日本のコンビニ・スーパー商品に特化し、日本語の原材料表示を読み解きます。豚由来・アルコール（みりん等）・動物性ゼラチンを判定し、確証が持てない場合は「疑わしい」と正直に表示します。最終判断はご自身で行えるよう、根拠も示します。</p></div></div>
+      <div class="qa-item"><button class="qa" aria-expanded="false"><span>対応している言語は？</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button><div class="qa-body"><p>ロシア語・日本語に対応し、ウズベク語にも順次対応します。運転中でも使いやすいよう、音声入力に対応しています。</p></div></div>
+      <div class="qa-item"><button class="qa" aria-expanded="false"><span>料金はかかりますか？</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button><div class="qa-body"><p>基本機能は無料です。勤務先の運送会社が導入している場合は、すべての機能を無料でご利用いただけます。</p></div></div>
+      <div class="qa-item"><button class="qa" aria-expanded="false"><span>電波がない場所でも使えますか？</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button><div class="qa-body"><p>はい。現場フレーズ・商品データ・ハラル店リストは、圏外でも表示できるよう設計しています。</p></div></div>
+      <div class="qa-item"><button class="qa" aria-expanded="false"><span>荷物の豚チェックは、どんな荷物に対応していますか？</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button><div class="qa-body"><p>伝票・送り状をカメラで撮影するか、荷物のバーコードを読み取ることで、商品データベースと照合して豚由来品を検出します。日本語の商品名や成分情報から判定するため、日本国内の一般的な配送品に対応しています。未登録の商品がある場合は、その旨を表示します。</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL -->
+<section class="final" id="final">
+  <svg class="f-star" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="20" y="20" width="60" height="60"/><rect x="20" y="20" width="60" height="60" transform="rotate(45 50 50)"/></svg>
+  <div class="wrap reveal">
+    <h2 data-ja="走る一日に、相棒を。" data-ru="Спутник на каждый день в дороге." data-en="A companion for every day on the road.">走る一日に、相棒を。</h2>
+    <p class="lead" data-ja="ダウンロードは無料。あなたの言葉で、すぐに使えます。" data-ru="Скачивание бесплатно. Сразу на вашем языке." data-en="Free to download. Ready in your language.">ダウンロードは無料。あなたの言葉で、すぐに使えます。</p>
+    <div class="badges">
+      <a href="#" class="badge" aria-label="App Store でダウンロード"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.9c0-2 1.6-3 1.7-3-1-1.3-2.4-1.5-2.9-1.6-1.2-.1-2.4.7-3 .7s-1.6-.7-2.6-.7c-1.3 0-2.6.8-3.2 2-1.4 2.4-.4 6 1 8 .7 1 1.4 2 2.4 2s1.3-.6 2.5-.6 1.5.6 2.6.6 1.7-1 2.3-2c.7-1.1 1-2.1 1-2.2-.1 0-2.1-.8-2.3-3.4ZM14.5 6.5c.5-.7.9-1.6.8-2.5-.8 0-1.7.5-2.3 1.2-.5.6-.9 1.5-.8 2.4.9 0 1.7-.4 2.3-1.1Z"/></svg><span><span class="b-sm" data-ja="で入手" data-ru="Загрузить в" data-en="Download on">で入手</span><span class="b-lg">App Store</span></span></a>
+      <a href="#" class="badge" aria-label="Google Play でダウンロード"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.6 2.3c-.3.3-.5.7-.5 1.3v16.8c0 .6.2 1 .5 1.3l.1.1 9.4-9.4v-.2L3.7 2.2l-.1.1Zm12.6 6.3-2.6-2.6 2.6 2.6Zm-9.3-5L15 8.9l2.1-2.1L7.3 1.2c-.4-.2-.8-.2-1.1 0Zm0 18.8c.3.2.7.2 1.1 0l9.8-5.6L15 14.5l-8.1 7.9Zm13.3-8.2 2.3-1.3c.7-.4.7-1.1 0-1.5l-2.3-1.3-2.3 2.1 2.3 2Z"/></svg><span><span class="b-sm" data-ja="で入手" data-ru="Доступно в" data-en="Get it on">で入手</span><span class="b-lg">Google Play</span></span></a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <a href="#top" class="logo"><svg class="mark" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="6"><rect x="22" y="22" width="56" height="56" rx="3"/><rect x="22" y="22" width="56" height="56" rx="3" transform="rotate(45 50 50)"/></svg><span>Safar<small>サファル</small></span></a>
+        <p>トラックで日本を走る、中央アジアのムスリムドライバーの相棒。食・荷物・言葉に、集中する。</p>
+      </div>
+      <div class="foot-cols">
+        <div class="foot-col"><h4>Product</h4><a href="#features">荷物チェック</a><a href="#halal">ハラル判定</a><a href="#features">言語サポート</a><a href="#faq">よくある質問</a></div>
+        <div class="foot-col"><h4>For Business</h4><a href="#biz">運送会社の方へ</a><a href="#biz">導入のご相談</a></div>
+        <div class="foot-col"><h4>Language</h4><a href="#">日本語</a><a href="#">Русский</a><a href="#">Oʻzbekcha</a></div>
+      </div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 Safar. プロダクトコンセプト。</span><span>走る一日に、相棒を。</span></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var header=document.getElementById('header');
+  var onScroll=function(){header.classList.toggle('scrolled',window.scrollY>20)};
+  onScroll();window.addEventListener('scroll',onScroll,{passive:true});
+  var mt=document.getElementById('menuToggle'),nl=document.getElementById('navLinks');
+  mt.addEventListener('click',function(){var open=nl.classList.toggle('open');mt.setAttribute('aria-expanded',open);});
+  nl.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){nl.classList.remove('open');mt.setAttribute('aria-expanded','false');});});
+  var langBtns=document.querySelectorAll('.lang button');
+  function setLang(lang){
+    document.documentElement.lang=(lang==='ja'?'ja':lang);
+    document.querySelectorAll('[data-ja]').forEach(function(el){
+      var v=el.getAttribute('data-'+lang);
+      if(v!==null){ if(/[<]/.test(v)){el.innerHTML=v;} else {el.textContent=v;} }
+    });
+    langBtns.forEach(function(b){b.classList.toggle('active',b.getAttribute('data-lang')===lang);});
+  }
+  langBtns.forEach(function(b){b.addEventListener('click',function(){setLang(b.getAttribute('data-lang'));});});
+  var io=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.14,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+  document.querySelectorAll('.qa').forEach(function(btn){
+    var body=btn.nextElementSibling;
+    btn.addEventListener('click',function(){
+      var open=btn.getAttribute('aria-expanded')==='true';
+      document.querySelectorAll('.qa').forEach(function(b){b.setAttribute('aria-expanded','false');b.nextElementSibling.style.maxHeight=null;});
+      if(!open){btn.setAttribute('aria-expanded','true');body.style.maxHeight=body.scrollHeight+'px';}
+    });
+  });
+})();
+</script>
+</body>
+</html>

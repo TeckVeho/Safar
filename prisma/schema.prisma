@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum NgCategory {
+  pork
+  alcohol
+  gelatin
+  other
+}
+
+enum PhraseCategory {
+  tenko
+  denpyo
+  niyaku
+  ninushi
+  jiko
+}
+
+enum Verdict {
+  ok
+  avoid
+  maybe
+}
+
+model Product {
+  jan             String   @id @db.VarChar(13)
+  name            String   @db.VarChar(255)
+  ingredientsRaw  String?  @db.Text @map("ingredients_raw")
+  flags           Json?
+  verdict         Verdict?
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("product")
+}
+
+model NgIngredient {
+  id       Int        @id @default(autoincrement())
+  category NgCategory
+  term     String     @db.VarChar(100)
+  note     String?    @db.VarChar(255)
+
+  @@index([category])
+  @@map("ng_ingredient")
+}
+
+model Phrase {
+  id       Int            @id @default(autoincrement())
+  category PhraseCategory
+  ja       String         @db.Text
+  ru       String         @db.Text
+  uz       String?        @db.Text
+
+  @@index([category])
+  @@map("phrase")
+}
+
+model Store {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(255)
+  lat       Float
+  lng       Float
+  type      String   @db.VarChar(30)
+  address   String?  @db.VarChar(255)
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("store")
+}

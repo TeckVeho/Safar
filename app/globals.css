@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+:root {
+  --ink: #0c2522;
+  --teal-950: #082420;
+  --teal-900: #0a3b36;
+  --teal-800: #0e4a43;
+  --teal-700: #15564e;
+  --saffron: #e8a33d;
+  --saffron-deep: #d4862a;
+  --sand: #f5efe3;
+  --sand-2: #efe7d6;
+  --card: #fcf9f2;
+  --cream: #ede6d6;
+  --cream-dim: #c8cebf;
+  --sage: #5c6f66;
+  --line: rgba(12, 37, 34, 0.12);
+  --verdict-ok: #1c8a4b;
+  --verdict-ok-bg: #e6f4ea;
+  --verdict-avoid: #b42318;
+  --verdict-avoid-bg: #fee4e2;
+  --verdict-maybe: #d4862a;
+  --verdict-maybe-bg: #fef3c7;
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-teal-950: var(--teal-950);
+  --color-teal-900: var(--teal-900);
+  --color-teal-800: var(--teal-800);
+  --color-teal-700: var(--teal-700);
+  --color-saffron: var(--saffron);
+  --color-saffron-deep: var(--saffron-deep);
+  --color-sand: var(--sand);
+  --color-sand-2: var(--sand-2);
+  --color-card: var(--card);
+  --color-cream: var(--cream);
+  --color-cream-dim: var(--cream-dim);
+  --color-sage: var(--sage);
+  --font-sans: var(--font-noto), "Noto Sans JP", sans-serif;
+  --font-display: var(--font-zen), "Zen Kaku Gothic New", sans-serif;
+  --font-latin: var(--font-sora), "Sora", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--sand);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  line-height: 1.28;
+  font-weight: 900;
+}
+
+:focus-visible {
+  outline: 3px solid var(--saffron);
+  outline-offset: 3px;
+}
+
+@keyframes splash-progress {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.splash-progress {
+  animation: splash-progress 2.8s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}

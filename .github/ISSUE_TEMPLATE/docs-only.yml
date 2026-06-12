@@ -1,0 +1,76 @@
+name: Docs only (AIDD)
+description: Documentation changes under docs/ — no OpenSpec or tests required
+title: "[Docs] "
+labels:
+  - documentation
+  - aidd
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## AIDD workflow
+
+        Per [`docs/architecture/development-flow.md`](docs/architecture/development-flow.md) §9 (Docs only):
+
+        - **Docs update** — Required
+        - **OpenSpec** — Not required
+        - **Unit test** — Not required
+
+        For **Standard Policy** sections in `development-flow.md` or `testing-strategy.md`, follow [`docs/readme.md`](docs/readme.md) §3 — use Project-specific Notes or record deviations in this issue.
+
+        ---
+
+        ## Create with Cursor Agent
+
+        ```
+        Draft a docs-only GitHub issue to update: <describe>.
+        List exact paths under docs/.
+        Note whether directory-structure.md must be updated.
+        ```
+
+  - type: dropdown
+    id: docs-tree
+    attributes:
+      label: Primary docs area
+      options:
+        - docs/
+        - Root readme / .github only
+    validations:
+      required: true
+
+  - type: textarea
+    id: purpose
+    attributes:
+      label: Purpose
+      description: Why this documentation change is needed
+    validations:
+      required: true
+
+  - type: textarea
+    id: files
+    attributes:
+      label: Files to create, update, or remove
+      value: |
+        - [ ] docs/...
+        - [ ] docs/architecture/directory-structure.md (if layout changes)
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance criteria
+      value: |
+        - [ ] Content is accurate and Markdown renders correctly
+        - [ ] Links and paths are valid
+        - [ ] No unintended changes to Standard Policy without recorded rationale
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: deliverables
+    attributes:
+      label: Deliverables
+      options:
+        - label: Branch docs/{issue-number}-{short-title}
+        - label: PR describes what changed and why (no test section required)

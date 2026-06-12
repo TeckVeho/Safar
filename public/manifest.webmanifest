@@ -1,0 +1,18 @@
+{
+  "name": "Safar",
+  "short_name": "Safar",
+  "description": "トラックドライバー向け業務支援 — 荷物チェック・ハラル判定・現場フレーズ",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5efe3",
+  "theme_color": "#0a3b36",
+  "lang": "ru",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

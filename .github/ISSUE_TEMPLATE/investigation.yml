@@ -1,0 +1,77 @@
+name: Investigation / spike (AIDD)
+description: Research or spike — record findings on the Issue; optional docs note
+title: "[Investigate] "
+labels:
+  - investigation
+  - aidd
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## AIDD workflow
+
+        Per [`docs/architecture/development-flow.md`](docs/architecture/development-flow.md) §8 / §9 (Investigation):
+
+        - Record **findings on this Issue**
+        - **OpenSpec** — Not required unless follow-up feature issue is created
+        - **Docs** — Optional (e.g. capture decisions in architecture or Project-specific Notes)
+
+        ---
+
+        ## Create with Cursor Agent
+
+        Attach relevant `@docs/` and code context, then:
+
+        ```
+        Draft an investigation GitHub issue for: <question>.
+        Include goal, scope, time box, and what outputs we need (recommendation, follow-up issues).
+        ```
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Question / goal
+      description: What we need to learn or decide
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and constraints
+      description: In scope / out of scope, time box, environments
+    validations:
+      required: true
+
+  - type: textarea
+    id: approach
+    attributes:
+      label: Proposed approach
+      description: Steps, tools, docs to read
+    validations:
+      required: false
+
+  - type: textarea
+    id: findings
+    attributes:
+      label: Findings
+      description: Fill in during or after investigation (can edit issue body)
+    validations:
+      required: false
+
+  - type: textarea
+    id: recommendation
+    attributes:
+      label: Recommendation / follow-up
+      description: Suggested next issues, FR changes, or "no change"
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: outputs
+    attributes:
+      label: Expected outputs
+      options:
+        - label: Summary posted as issue comment
+        - label: Follow-up feature/bug issues linked
+        - label: Short note added to docs/ Project-specific Notes (optional)

@@ -1,0 +1,179 @@
+name: Feature development (AIDD)
+description: New feature or behavior change — Issue → OpenSpec → docs → implementation → PR
+title: "[Feature] "
+labels:
+  - feature
+  - aidd
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## AIDD workflow
+
+        Per [`docs/architecture/development-flow.md`](docs/architecture/development-flow.md) §7 and §9:
+
+        **Milestone → Issue → OpenSpec → Docs update → Implementation → Tests → PR**
+
+        | Deliverable | This work type |
+        |---|---|
+        | OpenSpec | Required |
+        | Docs update | Required when specs change |
+        | Unit / integration tests | Required |
+
+        ---
+
+        ## Create this issue with Cursor Agent (recommended)
+
+        1. Open **Agent** chat and add context with `@`:
+           - `docs/architecture/development-flow.md`
+           - `docs/requirements/functional-requirements.md` (and related specs)
+           - `openspec/changes/1001-issue/proposal.md` (format sample)
+        2. Example prompt:
+
+        ```
+        Draft a GitHub issue for: <describe the feature>.
+        Follow development-flow.md §7. Include Background, Purpose, Scope (in/out),
+        numbered Requirements, Acceptance Criteria as checkboxes, related FR/UC/SCR IDs,
+        risks, and suggested OpenSpec slug `{issue#}-short-title`.
+        Align with existing docs under docs/specifications/.
+        ```
+
+        3. Paste the result into the fields below, or ask the agent to run `gh issue create` after you fill the template on GitHub.
+
+        After the issue exists, create `openspec/changes/{issue_slug}/` with `proposal.md`, `design.md`, `tasks.md`, and `specs/`.
+
+  - type: dropdown
+    id: work-type
+    attributes:
+      label: Work type
+      description: See development-flow.md §9 Work Type Matrix
+      options:
+        - Feature development
+        - Spec change
+    validations:
+      required: true
+
+  - type: input
+    id: milestone
+    attributes:
+      label: Milestone
+      description: e.g. M1 — Employee management MVP
+    validations:
+      required: false
+
+  - type: input
+    id: openspec-slug
+    attributes:
+      label: OpenSpec change slug
+      description: Folder name under openspec/changes/ (e.g. 1001-employee-list-search). Use issue number after creation.
+      placeholder: 1234-short-title
+    validations:
+      required: false
+
+  - type: textarea
+    id: background
+    attributes:
+      label: Background
+      description: Why this work is needed; link to requirements and current state
+    validations:
+      required: true
+
+  - type: textarea
+    id: purpose
+    attributes:
+      label: Purpose
+      description: What users or the system should gain
+    validations:
+      required: true
+
+  - type: textarea
+    id: related-ids
+    attributes:
+      label: Related requirement / spec IDs
+      description: FR, BR, UC, SCR, API paths (markdown table or list)
+      value: |
+        | Type | ID | Notes |
+        |---|---|---|
+        | FR | FR-xxx | |
+        | UC | UC-xxx | |
+        | Screen | SCR-xxx | |
+    validations:
+      required: false
+
+  - type: textarea
+    id: scope-in
+    attributes:
+      label: Scope — In
+      description: What this issue will implement
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope-out
+    attributes:
+      label: Scope — Out
+      description: Explicitly excluded items (reference other issues if deferred)
+    validations:
+      required: false
+
+  - type: textarea
+    id: requirements
+    attributes:
+      label: Requirements
+      description: Numbered list of behaviors implementers must satisfy
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance criteria
+      description: Testable checklist (copy as `- [ ]` items in PR / OpenSpec too)
+      value: |
+        - [ ]
+        - [ ]
+    validations:
+      required: true
+
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks and mitigations
+      description: Optional
+    validations:
+      required: false
+
+  - type: textarea
+    id: related-docs
+    attributes:
+      label: Related docs paths
+      description: Files to read or update under docs/
+      value: |
+        - docs/requirements/functional-requirements.md
+        - docs/specifications/...
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: deliverables
+    attributes:
+      label: Expected deliverables (confirm before closing)
+      options:
+        - label: OpenSpec change under openspec/changes/{issue_slug}/ (proposal, design, tasks, specs)
+          required: false
+        - label: Docs updated under docs/ where behavior or contracts change
+          required: false
+        - label: Branch feature/{issue-number}-{short-title} (or fix/docs per development-flow.md §5)
+          required: false
+        - label: Unit / integration tests per docs/architecture/testing-strategy.md
+          required: false
+        - label: PR links issue, lists doc/OpenSpec updates and test results
+          required: false
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Sample-only repo notes, dependencies on other issues, etc.
+    validations:
+      required: false
