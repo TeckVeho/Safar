@@ -8,10 +8,11 @@
 
 ## 最初に読むドキュメント
 
-1. [docs/readme.md](./docs/readme.md) — AIDD 共通方針・ドキュメントの読み方
-2. [docs/architecture/directory-structure.md](./docs/architecture/directory-structure.md) — リポジトリ構成と責務
-3. [docs/architecture/development-flow.md](./docs/architecture/development-flow.md) — Issue → OpenSpec → 実装 → PR
-4. OpenSpec サンプル — [openspec/changes/0001-halal-scan/](./openspec/changes/0001-halal-scan/)（`proposal.md` から）
+1. [docs/team-guide.md](./docs/team-guide.md) — **Team onboarding**（機能・技術・構成・実装状況の総合ガイド）
+2. [docs/readme.md](./docs/readme.md) — AIDD 共通方針・ドキュメントの読み方
+3. [docs/architecture/directory-structure.md](./docs/architecture/directory-structure.md) — リポジトリ構成と責務
+4. [docs/architecture/development-flow.md](./docs/architecture/development-flow.md) — Issue → OpenSpec → 実装 → PR
+5. OpenSpec サンプル — [openspec/changes/0001-halal-scan/](./openspec/changes/0001-halal-scan/)（`proposal.md` から）
 
 ---
 

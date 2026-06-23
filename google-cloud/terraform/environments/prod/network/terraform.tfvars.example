@@ -1,0 +1,7 @@
+﻿# Copy to terraform.tfvars and adjust.
+
+project_id = "dx-safar"
+
+# region + env_suffix injected by Terragrunt (live/prod/network)
+#
+# Add IAM members to env custom roles → ../app/terraform.tfvars.example (env_iam_principals / project_iam_members)

@@ -38,6 +38,7 @@ Safar/
 ```txt
 docs/
 ├── readme.md
+├── team-guide.md               # Team onboarding（機能・技術・構成・実装状況）
 ├── architecture/
 │   ├── architecture.md
 │   ├── development-flow.md

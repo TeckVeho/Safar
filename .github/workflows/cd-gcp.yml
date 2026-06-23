@@ -1,0 +1,111 @@
+# GCP — Cloud Build (push + optional manual) via Workload Identity Federation
+#
+# Push to develop | staging | production: build safar-app → migrate → deploy dx-safar-api-{tag}
+# workflow_dispatch: manual deploy on develop, staging, or production branch
+#
+# GitHub Environment = branch name (github.ref_name). Create Environments: develop, staging, production.
+# In each Environment, Secrets: GCP_PROJECT_ID, GCP_WORKLOAD_IDENTITY_PROVIDER, GCP_SERVICE_ACCOUNT
+# Optional Variable: GCP_IMAGE_TAG (default: dev / stage / prod per branch)
+#
+# Cloud Build: production → cloudbuild.prod.yaml; develop and staging → cloudbuild.dev.yaml.
+# Single GCP project (dx-safar): build and deploy use GCP_PROJECT_ID only.
+
+name: CD GCP
+
+concurrency:
+  group: cd-gcp-${{ github.ref_name }}
+  cancel-in-progress: false
+
+on:
+  push:
+    branches:
+      - develop
+      - staging
+      - production
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  cloud-build:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/production'
+    environment: ${{ github.ref_name }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Resolve Cloud Build config
+        id: cfg
+        env:
+          ENV_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          echo "env_name=${ENV_NAME}" >> "$GITHUB_OUTPUT"
+          case "${ENV_NAME}" in
+            production)
+              echo "cloudbuild_config=google-cloud/cloudbuild/cloudbuild.prod.yaml" >> "$GITHUB_OUTPUT"
+              DEFAULT_TAG=prod
+              ;;
+            staging)
+              echo "cloudbuild_config=google-cloud/cloudbuild/cloudbuild.dev.yaml" >> "$GITHUB_OUTPUT"
+              DEFAULT_TAG=stage
+              ;;
+            develop)
+              echo "cloudbuild_config=google-cloud/cloudbuild/cloudbuild.dev.yaml" >> "$GITHUB_OUTPUT"
+              DEFAULT_TAG=dev
+              ;;
+            *)
+              echo "Internal error: unexpected ref_name=${ENV_NAME}" >&2
+              exit 1
+              ;;
+          esac
+          TAG="${{ vars.GCP_IMAGE_TAG }}"
+          if [ -z "${TAG}" ]; then TAG="${DEFAULT_TAG}"; fi
+          echo "image_tag=${TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Validate required GCP secrets
+        env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+        run: |
+          set -euo pipefail
+          missing=
+          [ -z "${GCP_PROJECT_ID}" ] && missing="${missing} GCP_PROJECT_ID"
+          [ -z "${GCP_SERVICE_ACCOUNT}" ] && missing="${missing} GCP_SERVICE_ACCOUNT"
+          [ -z "${GCP_WORKLOAD_IDENTITY_PROVIDER}" ] && missing="${missing} GCP_WORKLOAD_IDENTITY_PROVIDER"
+          if [ -n "${missing}" ]; then
+            echo "Missing Environment secrets for '${{ github.ref_name }}':${missing}"
+            exit 1
+          fi
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: Verify Cloud Build access to target project
+        env:
+          PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+        run: |
+          set -euo pipefail
+          gcloud builds list --project="${PROJECT_ID}" --limit=1
+
+      - name: gcloud builds submit
+        env:
+          PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          CONFIG: ${{ steps.cfg.outputs.cloudbuild_config }}
+          TAG: ${{ steps.cfg.outputs.image_tag }}
+        run: |
+          set -euo pipefail
+          cd "${GITHUB_WORKSPACE}"
+          CORE_SUBS="_TAG=${TAG},_AR_PROJECT_ID=${PROJECT_ID},_DEPLOY_PROJECT_ID=${PROJECT_ID},_REPO=${PROJECT_ID}-docker"
+          gcloud builds submit --project="${PROJECT_ID}" --config="${CONFIG}" \
+            --substitutions="${CORE_SUBS},_API_SERVICE=${PROJECT_ID}-api-${TAG},_MIGRATE_JOB=${PROJECT_ID}-migrate-${TAG}" .
