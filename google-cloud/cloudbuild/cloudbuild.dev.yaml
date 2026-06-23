@@ -1,0 +1,93 @@
+﻿# Cloud Build — dev image (Next.js monolith) → Artifact Registry
+#
+# Builds+pushes safar-app image, runs prisma migrations via dx-safar-migrate-{tag} job,
+# then deploys dx-safar-api-{tag} Cloud Run service (monolith — no separate web image).
+#
+# Single project (default): _AR_PROJECT_ID and _DEPLOY_PROJECT_ID are both dx-safar
+# (CI/scripts set them from GCP_PROJECT_ID). Substitutions may differ for legacy cross-project setups.
+#
+# Migrate job config (Cloud SQL volume, DATABASE_URL secret, VPC) is owned by Terraform
+# (google-cloud/terraform/modules/cloud_run/migrate_job.tf). CI only updates the job image — do not use `jobs deploy`
+# here or it strips DB connectivity.
+#
+# Submit from repo root:
+#   bash google-cloud/scripts/cloud-build-submit.sh google-cloud/cloudbuild/cloudbuild.dev.yaml
+# Staging (same config, different tag):
+#   TAG=stage bash google-cloud/scripts/cloud-build-submit.sh google-cloud/cloudbuild/cloudbuild.dev.yaml
+# Or:
+#   gcloud builds submit --project=dx-safar --config=google-cloud/cloudbuild/cloudbuild.dev.yaml \
+#     --substitutions=_AR_PROJECT_ID=dx-safar,_DEPLOY_PROJECT_ID=dx-safar,_REPO=dx-safar-docker,_TAG=dev .
+
+steps:
+  # Pull previous image when present so Docker can reuse layers (--cache-from).
+  - name: 'gcr.io/cloud-builders/docker'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        set -euo pipefail
+        docker pull ${_REGION}-docker.pkg.dev/${_AR_PROJECT_ID}/${_REPO}/safar-app:${_TAG} || true
+        docker build \
+          --cache-from ${_REGION}-docker.pkg.dev/${_AR_PROJECT_ID}/${_REPO}/safar-app:${_TAG} \
+          -t ${_REGION}-docker.pkg.dev/${_AR_PROJECT_ID}/${_REPO}/safar-app:${_TAG} \
+          .
+    dir: '.'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - '${_REGION}-docker.pkg.dev/${_AR_PROJECT_ID}/${_REPO}/safar-app:${_TAG}'
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'jobs'
+      - 'update'
+      - '${_MIGRATE_JOB}'
+      - '--project'
+      - '${_DEPLOY_PROJECT_ID}'
+      - '--image'
+      - '${_REGION}-docker.pkg.dev/${_AR_PROJECT_ID}/${_REPO}/safar-app:${_TAG}'
+      - '--region'
+      - '${_REGION}'
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'jobs'
+      - 'execute'
+      - '${_MIGRATE_JOB}'
+      - '--project'
+      - '${_DEPLOY_PROJECT_ID}'
+      - '--region'
+      - '${_REGION}'
+      - '--wait'
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - '${_API_SERVICE}'
+      - '--project'
+      - '${_DEPLOY_PROJECT_ID}'
+      - '--image'
+      - '${_REGION}-docker.pkg.dev/${_AR_PROJECT_ID}/${_REPO}/safar-app:${_TAG}'
+      - '--region'
+      - '${_REGION}'
+      - '--no-allow-unauthenticated'
+
+substitutions:
+  _REGION: asia-northeast1
+  _REPO: dx-safar-docker
+  _TAG: dev
+  _AR_PROJECT_ID: ''
+  _DEPLOY_PROJECT_ID: ''
+  _API_SERVICE: dx-safar-api-dev
+  _MIGRATE_JOB: dx-safar-migrate-dev
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: E2_MEDIUM

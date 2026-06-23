@@ -1,0 +1,158 @@
+﻿# =============================================================================
+# Copy to terraform.tfvars or terraform.tfvars.dev (local files are gitignored).
+# Do not commit secrets — use Secret Manager + api_secret_env_from_sm / web_secret_env_from_sm.
+# =============================================================================
+#
+# Default resource names (derived in Terraform from project_id + env_suffix; do not set sql_* / bucket in tfvars):
+#   Cloud Run : dx-safar-api-stg, dx-safar-api-stg
+#   Cloud SQL : dx-safar-mysql-stg (instance), dx-safar-stg (database + MySQL user)
+#   GCS       : dx-safar-uploads-stg
+#   VPC       : dx-safar-vpc-stg
+#   Artifact Registry (bootstrap): dx-safar-docker
+#   Terraform state (bootstrap)  : dx-safar-terraform-state
+#
+# =============================================================================
+
+# --- Required ---
+
+project_id = "dx-safar"
+env_suffix = "stg"
+
+container_image = "asia-northeast1-docker.pkg.dev/dx-safar/dx-safar-docker/safar-app:stage"
+
+# Registry: google-cloud/terraform/live/bootstrap
+#
+# container_port must match the process inside the image (backend Dockerfile EXPOSE 8080).
+# Cloud Run names: {project_id}-api-{env_suffix}, {project_id}-web-{env_suffix}.
+container_port = 8080
+
+# --- Plain env (no secrets; secrets → Secret Manager + *_secret_env_from_sm) ---
+
+env_vars = {
+  NODE_ENV        = "production"
+  LOG_LEVEL       = "info"
+  TIMEZONE        = "Asia/Tokyo"
+  STORAGE_BACKEND = "gcs"
+  CORS_ORIGINS    = "https://REPLACE-WITH-WEB-CLOUD-RUN-URL"
+  FRONTEND_URL    = "https://REPLACE-WITH-WEB-CLOUD-RUN-URL"
+  # API_URL = API origin without /api/v1 (backend adds path where needed). Optional APP_URL if your code uses it.
+  APP_URL           = "https://REPLACE-WITH-API-CLOUD-RUN-URL"
+  API_URL           = "https://REPLACE-WITH-API-CLOUD-RUN-URL"
+}
+
+web_env_vars = {
+  NODE_ENV             = "production"
+  NEXT_PUBLIC_API_URL  = "https://REPLACE-WITH-API-CLOUD-RUN-URL/api/v1"
+  NEXT_PUBLIC_BASE_URL = "https://REPLACE-WITH-WEB-CLOUD-RUN-URL"
+}
+
+# --- Custom domains (DNS at your registrar; not Google Domains required) ---
+# Leave both empty to use only the default *.run.app URLs.
+# After terraform apply, run: terraform output api_domain_mapping_status (and web_*) and add TXT + CNAME/ALIAS at your DNS provider as shown (apex may need ALIAS/CNAME flattening).
+# When api_custom_domain and/or web_custom_domain is set, Terraform merges API_URL (origin only), CORS, FRONTEND_URL, NEXT_PUBLIC_* (NEXT_PUBLIC_API_URL keeps /api/v1) from those hostnames.
+# If only one service uses a custom domain, keep the other service URLs pointing at *.run.app in env_vars / web_env_vars as needed.
+#
+# api_custom_domain = ""
+# web_custom_domain = ""
+
+# --- Vertex AI for Gemini (enable_vertex_ai default: false) ---
+# When true: enables aiplatform.googleapis.com, IAM aiplatform.user, sets VERTEX_AI=true on API Cloud Run.
+# Do not add GEMINI_API_KEY to api_secret_env_from_sm when using Vertex.
+# enable_vertex_ai     = true
+# vertex_ai_location   = ""   # empty → var.region (asia-northeast1)
+
+# --- GCS uploads (enable_gcs default: true) ---
+# Bucket: dx-safar-uploads-stg ({project_id}-uploads-{env_suffix})
+
+# --- Cloud SQL (MySQL) + network remote state ---
+#
+# enable_cloud_sql = true
+# Instance dx-safar-mysql-stg; database + user dx-safar-mysql-stg. Sizing from resource_tier (tier_specs).
+#
+# Private IP requires network stack applied first:
+# network_remote_state_bucket = "dx-safar-terraform-state"
+# network_remote_state_prefix = "network/stg"
+
+# --- Next.js on Cloud Run (default: web service enabled) ---
+# web_container_image    = "asia-northeast1-docker.pkg.dev/your-gcp-project-id/dx-safar-docker/safar-app:dev"
+# web_container_port     = 3000
+
+# --- Public HTTPS (.run.app) — org policy may block allUsers ---
+# allow_unauthenticated     = true
+# allow_unauthenticated_web = true
+
+# --- Region ---
+# region = "asia-northeast1"
+
+# --- Secret Manager references (create secrets in GCP first) ---
+# api_secret_env_from_sm = [
+#   { env_name = "JWT_SECRET", secret_id = "safar-jwt-secret-dev", version = "latest" },
+# ]
+# web_secret_env_from_sm = []
+
+resource_tier = "tier3"
+
+# --- API cron: Cloud Scheduler → Cloud Run POST /internal/cron/* (OIDC) ---
+# Dev/stg default: true (in-process node-cron disabled; cron only via Cloud Scheduler).
+# Prod: keep false unless you intentionally enable the same pattern.
+# Requires Prisma migration `cron_invocations`. Align schedules with backend TIMEZONE in env_vars.
+enable_cron_cloud_scheduler = true
+#
+# cron_timezone = "Asia/Tokyo"
+#
+# Cron expressions use cron_timezone (unix cron: min hour dom month dow).
+# cron_schedule_cleanup_tokens   = "0 2 * * *"    # default 02:00 daily — refresh token cleanup
+# cron_schedule_tbs_batch        = "0 2 * * 6"   # default Sat 02:00 — TBS batch (API skips if RUN_TBS_CRON != 1)
+# cron_schedule_recommendations  = "0 3 * * 0"   # default Sun 03:00 — AI recommendations batch
+
+# --- GCP project label `tier` (wiki) ---
+# Label tier = resource_tier (overwritten on each apply).
+# terragrunt import 'module.app_compose.module.iam.google_project.wiki_labels' dx-safar
+# project_display_name = ""
+
+# --- IAM custom roles (project-scoped; Owner kept outside Terraform) ---
+enable_env_iam_custom_roles = true
+# Roles created automatically (Terraform binds scoped + global in pairs):
+#   deployers → safarStgDeployer (scoped) + safarStgDeployerGlobal
+#   readonly  → safarStgReadonly (scoped)  + safarStgReadonlyGlobal
+# Scoped roles auto-receive IAM Condition for *-stg resources.
+# Uncomment one env_iam_principals block below, then: terragrunt apply (live/stg/app)
+#
+# --- Add member: deployer only ---
+# env_iam_principals = {
+#   deployers = ["user:colleague@veho-works.com"]
+#   readonly  = []
+# }
+#
+# --- Add member: readonly only ---
+# env_iam_principals = {
+#   deployers = []
+#   readonly  = ["user:viewer@veho-works.com"]
+# }
+#
+# --- Add members: deployer + readonly (different users) ---
+# env_iam_principals = {
+#   deployers = ["user:colleague@veho-works.com"]
+#   readonly  = ["user:viewer@veho-works.com"]
+# }
+#
+# --- Add member: Google Group as deployers ---
+# env_iam_principals = {
+#   deployers = ["group:gcp-stg-developers@veho-works.com"]
+#   readonly  = []
+# }
+#
+# --- Alternative: project_iam_members (per role; condition auto-injected for scoped roles) ---
+# project_iam_members = [
+#   { member = "user:colleague@veho-works.com", role = "projects/dx-safar/roles/safarStgDeployer" },
+#   { member = "user:colleague@veho-works.com", role = "projects/dx-safar/roles/safarStgDeployerGlobal" },
+#   { member = "user:viewer@veho-works.com", role = "projects/dx-safar/roles/safarStgReadonly" },
+#   { member = "user:viewer@veho-works.com", role = "projects/dx-safar/roles/safarStgReadonlyGlobal" },
+# ]
+
+# --- Dev/stg: Cloud SQL stop/start schedule (JST; requires enable_cloud_sql) — default ON for cost ---
+# Prod: omit or set false.
+enable_sql_night_weekend_schedule = true
+# sql_schedule_timezone   = "Asia/Tokyo"
+# sql_schedule_start_cron = "0 8 * * 1-5"
+# sql_schedule_stop_cron  = "0 22 * * 1-5"

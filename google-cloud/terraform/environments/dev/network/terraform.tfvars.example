@@ -1,0 +1,9 @@
+﻿# Copy to terraform.tfvars and adjust.
+
+project_id = "dx-safar"
+
+# region     → GCP_REGION in .env (default asia-northeast1), via Terragrunt inputs
+# env_suffix → live/{env}/ path (dev | stg | prod), via Terragrunt inputs
+# VPC + CIDR → derived from env_suffix (see modules/network/main.tf)
+#
+# Add IAM members to env custom roles → ../app/terraform.tfvars.example (env_iam_principals / project_iam_members)

@@ -1,0 +1,95 @@
+﻿# =============================================================================
+# Copy to terraform.tfvars or terraform.tfvars.dev (local files are gitignored).
+# Do not commit secrets — use Secret Manager + api_secret_env_from_sm.
+# =============================================================================
+#
+# Default resource names (derived in Terraform from project_id + env_suffix; do not set sql_* / bucket in tfvars):
+#   Cloud Run : dx-safar-api-dev (monolith; web slot disabled via enable_web = false)
+#   Cloud SQL : dx-safar-mysql-dev (instance, database + MySQL user)
+#   VPC       : dx-safar-vpc-dev
+#   Artifact Registry (bootstrap): dx-safar-docker
+#   Terraform state (bootstrap)  : dx-safar-terraform-state
+#
+# =============================================================================
+
+# --- Required ---
+
+project_id = "dx-safar"
+env_suffix = "dev"
+
+container_image = "asia-northeast1-docker.pkg.dev/dx-safar/dx-safar-docker/safar-app:dev"
+
+# Registry + Cloud Build source cleanup: google-cloud/terraform/live/bootstrap (not app stack).
+
+# --- Cloud Run (Next.js monolith on the "api" slot) ---
+#
+# container_port must match the process inside the image (Dockerfile EXPOSE 8080).
+# Service name: {project_id}-api-{env_suffix} (e.g. dx-safar-api-dev).
+container_port = 8080
+
+enable_web = false
+
+env_vars = {
+  NODE_ENV = "production"
+}
+
+# --- Cloud SQL (MySQL) + network remote state ---
+#
+# Private IP requires network stack applied first.
+
+enable_cloud_sql = true
+network_remote_state_bucket = "dx-safar-terraform-state"
+network_remote_state_prefix = "network/dev"
+
+# --- Optional features (disabled for initial dev) ---
+
+enable_vertex_ai              = false
+enable_gcs                    = false
+enable_cron_cloud_scheduler   = false
+enable_sql_night_weekend_schedule = true
+
+# --- Public HTTPS (.run.app) — org policy may block allUsers ---
+# allow_unauthenticated = true
+
+# --- Region ---
+# region = "asia-northeast1"
+
+# --- Secret Manager references (create secrets in GCP first) ---
+# api_secret_env_from_sm = []
+
+resource_tier = "tier3"
+
+# --- GCP project label `tier` (wiki) ---
+# Label tier = resource_tier (e.g. tier3 → labels.tier=tier3). Each app apply updates the project label.
+# One-time import per env stack: terragrunt import 'module.app_compose.module.iam.google_project.wiki_labels' dx-safar
+# project_display_name = ""
+
+# --- IAM custom roles (project-scoped; Owner kept outside Terraform) ---
+enable_env_iam_custom_roles = true
+# Roles created automatically (Terraform binds scoped + global in pairs):
+#   deployers → safarDevDeployer (scoped) + safarDevDeployerGlobal
+#   readonly  → safarDevReadonly (scoped)  + safarDevReadonlyGlobal
+# Scoped roles auto-receive IAM Condition for *-dev resources (dx-safar-api-dev, dx-safar-uploads-dev, …).
+# Uncomment one env_iam_principals block below, then: terragrunt apply (live/dev/app)
+#
+# --- Add member: deployer only ---
+# env_iam_principals = {
+#   deployers = ["user:colleague@veho-works.com"]
+#   readonly  = []
+# }
+#
+# --- Add member: readonly only ---
+# env_iam_principals = {
+#   deployers = []
+#   readonly  = ["user:viewer@veho-works.com"]
+# }
+#
+# --- Alternative: project_iam_members (per role; condition auto-injected for scoped roles) ---
+# project_iam_members = [
+#   { member = "user:colleague@veho-works.com", role = "projects/dx-safar/roles/safarDevDeployer" },
+#   { member = "user:colleague@veho-works.com", role = "projects/dx-safar/roles/safarDevDeployerGlobal" },
+# ]
+
+# sql_schedule_timezone   = "Asia/Tokyo"
+# sql_schedule_start_cron = "0 8 * * 1-5"
+# sql_schedule_stop_cron  = "0 22 * * 1-5"

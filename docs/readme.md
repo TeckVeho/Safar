@@ -2,6 +2,8 @@
 
 ## 1. Overview
 
+> **Team onboarding:** [team-guide.md](./team-guide.md) — tổng hợp chức năng, công nghệ, cấu trúc code và trạng thái triển khai (tiếng Việt).
+
 このディレクトリは Safar（ドライバー業務特化版：業務中の摩擦解消 — 食・荷物・言葉）の開発ドキュメントを管理する。
 社内 AIDD 開発標準（[aidd-development-template](https://github.com/TeckVeho/aidd-development-template)）に準拠し、要件・仕様・アーキテクチャをリポジトリ内の Markdown で一元管理する。
 
