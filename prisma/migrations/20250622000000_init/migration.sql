@@ -1,4 +1,4 @@
-﻿-- CreateTable
+-- CreateTable
 CREATE TABLE `product` (
     `jan` VARCHAR(13) NOT NULL,
     `name` VARCHAR(255) NOT NULL,
